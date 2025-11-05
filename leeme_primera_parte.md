@@ -1,322 +1,429 @@
-Perfecto — te doy el procedimiento paso a paso y todo el código necesario para crear el proyecto UIII_Libreria_1194 con Django (proyecto backend_Libreria, app app_Libreria), incluyendo las vistas CRUD para Autor, las plantillas (base, header, navbar, footer, inicio) y los templates dentro de templates/autor. Todo sin forms.py, sin validación, y listo para ejecutar en el puerto 1194.
+# Proyecto Libreria AJMG 1194 — Procedimiento completo (Primera parte)
 
-1 — Estructura y comandos iniciales (crear carpeta, abrir VS Code, terminal, virtualenv)
-# 1. crear carpeta del proyecto y entrar en ella
+> **Resumen:** documento paso a paso para crear el proyecto Django **backend_Libreria** dentro de la carpeta **UIII_Libreria_1194**, crear la app **app_Libreria**, configurar el entorno, models (Autor), vistas CRUD para Autor, plantillas HTML, urls, registro en admin y migraciones. El diseño es sencillo, con colores suaves y Bootstrap.
+
+---
+
+## Estructura final recomendada (visión)
+
+```
+UIII_Libreria_1194/
+├─ .venv/
+├─ backend_Libreria/   # directorio del proyecto Django (contiene manage.py)
+│  ├─ backend_Libreria/
+│  │  ├─ __init__.py
+│  │  ├─ settings.py
+│  │  ├─ urls.py
+│  │  └─ wsgi.py
+│  └─ manage.py
+└─ app_Libreria/
+   ├─ migrations/
+   ├─ templates/
+   │  ├─ base.html
+   │  ├─ header.html
+   │  ├─ navbar.html
+   │  ├─ footer.html
+   │  ├─ inicio.html
+   │  └─ autor/
+   │     ├─ agregar_autor.html
+   │     ├─ ver_autores.html
+   │     ├─ actualizar_autor.html
+   │     └─ borrar_autor.html
+   ├─ __init__.py
+   ├─ admin.py
+   ├─ apps.py
+   ├─ models.py
+   ├─ views.py
+   ├─ urls.py
+   └─ tests.py
+```
+
+---
+
+## 1 — Crear la carpeta del proyecto y abrir VS Code
+
+1. Abre tu terminal (PowerShell o CMD si usas Windows) y crea la carpeta del proyecto:
+
+```bash
 mkdir UIII_Libreria_1194
 cd UIII_Libreria_1194
+```
 
-# 2. abrir VS Code en la carpeta
-# desde la terminal:
+2. Abre VS Code en esa carpeta (desde la terminal):
+
+```bash
 code .
+```
 
-# 3. abrir la terminal integrada en VS Code
-# atajo: Ctrl+`  (o Terminal > New Terminal)
+> Esto abre VS Code apuntando a `UIII_Libreria_1194`.
 
-# 4. crear entorno virtual llamado .venv
+---
+
+## 2 — Abrir terminal en VS Code
+
+* En VS Code: `Terminal` → `New Terminal`. Por defecto la terminal se abrirá en la ruta del proyecto `UIII_Libreria_1194`.
+
+---
+
+## 3 — Crear y activar entorno virtual `.venv`
+
+### Crear el entorno virtual
+
+```bash
 python -m venv .venv
+```
 
-# 5. activar entorno virtual
-# Windows (PowerShell)
+### Activar el entorno virtual
+
+* **Windows (PowerShell)**
+
+```powershell
 .venv\Scripts\Activate.ps1
-# o Windows (cmd)
-.venv\Scripts\activate
-# macOS / Linux
+```
+
+* **Windows (CMD)**
+
+```cmd
+.venv\Scripts\activate.bat
+```
+
+* **Linux / macOS / WSL**
+
+```bash
 source .venv/bin/activate
+```
 
-# 6. (Dentro de VS Code) seleccionar intérprete de Python:
-# Ctrl+Shift+P -> "Python: Select Interpreter" -> elegir .venv (aparecerá como .venv)
+Cuando esté activo verás `(.venv)` al inicio del prompt.
 
-# 7. instalar Django
+---
+
+## 4 — Seleccionar intérprete de Python en VS Code
+
+1. En VS Code presiona `Ctrl+Shift+P` → escribe `Python: Select Interpreter` → elige el que apunta a `UIII_Libreria_1194/.venv/...`.
+
+> Esto asegura que VS Code use el intérprete del entorno virtual.
+
+---
+
+## 5 — Instalar Django
+
+Con el entorno activado:
+
+```bash
 pip install django
+```
 
-# 8. crear el proyecto Django sin crear carpeta duplicada:
-# usamos el punto final para que no cree una carpeta extra
+Verifica la instalación:
+
+```bash
+python -m django --version
+```
+
+---
+
+## 6 — Crear proyecto `backend_Libreria` sin duplicar carpeta
+
+**Importante:** para evitar crear una carpeta extra `backend_Libreria/backend_Libreria`, usa el indicador `.` al crear el proyecto dentro de una carpeta dedicada `backend_Libreria` o crea el proyecto directamente en la raíz si prefieres.
+
+Opción recomendada (crear carpeta `backend_Libreria` y ejecutar startproject dentro de ella con el punto):
+
+```bash
+mkdir backend_Libreria
+cd backend_Libreria
 django-admin startproject backend_Libreria .
+```
 
-# 9. crear la app
+Esto genera `manage.py` y la carpeta interna `backend_Libreria/` pero **sin** una carpeta superior adicional.
+
+---
+
+## 7 — Ejecutar servidor en el puerto 1194
+
+Posiciónate en la carpeta que contiene `manage.py` (ej. `UIII_Libreria_1194/backend_Libreria`) y ejecuta:
+
+```bash
+python manage.py runserver 127.0.0.1:1194
+```
+
+O si prefieres permitir conexiones externas en la red local:
+
+```bash
+python manage.py runserver 0.0.0.0:1194
+```
+
+---
+
+## 8 — Copiar y pegar el link en el navegador
+
+Una vez que `runserver` esté corriendo, copia en tu navegador:
+
+```
+http://127.0.0.1:1194/
+```
+
+---
+
+## 9 — Crear la app `app_Libreria`
+
+Desde la carpeta con `manage.py`:
+
+```bash
 python manage.py startapp app_Libreria
+```
 
+---
 
-2 — Ajustes en settings.py
-Abre backend_Libreria/settings.py y:
+## 10 — Código del `models.py` (Autor, Libro, Venta)
 
+Copia el código proporcionado por ti en `app_Libreria/models.py`. Asegúrate de que quede así (ya lo tienes, lo incluyo para referencia y verificación rápida):
 
-Añade app_Libreria a INSTALLED_APPS:
-
-
-INSTALLED_APPS = [
-    # ... apps por defecto
-    'app_Libreria',
-]
-
-
-
-(Opcional) Asegúrate de que TEMPLATES tenga APP_DIRS: True (viene por defecto). No es necesario cambiar la ruta si dejamos las plantillas dentro de la app en app_Libreria/templates/....
-
-
-
-3 — Models
-Ya proporcionaste models.py. Coloca ese código en app_Libreria/models.py. (Lo incluyo de forma resumida pero es exactamente lo que mandaste).
-app_Libreria/models.py — (usa tu código; aquí confirmación de que todo está correcto). Asegúrate de que esté exactamente como lo pegaste (Autor, Libro, Venta).
-
-4 — Registrar modelos en admin
-app_Libreria/admin.py
-from django.contrib import admin
-from .models import Autor, Libro, Venta
-
-@admin.register(Autor)
-class AutorAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'nacionalidad', 'fecha_nacimiento', 'activo')
-    search_fields = ('nombre', 'nacionalidad')
-    list_filter = ('activo',)
-
-@admin.register(Libro)
-class LibroAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'isbn', 'genero', 'fecha_publicacion', 'precio', 'stock')
-    search_fields = ('titulo', 'isbn')
-
-@admin.register(Venta)
-class VentaAdmin(admin.ModelAdmin):
-    list_display = ('id','libro','cliente_nombre','fecha_venta','total','estado')
-    list_filter = ('estado',)
-
-Después de esto, volver a migrar (ver siguiente sección).
-
-5 — Migraciones
-# generar migraciones para app_Libreria
-python manage.py makemigrations app_Libreria
-
-# aplicar migraciones
-python manage.py migrate
-
-
-6 — URLs del proyecto y de la app
-backend_Libreria/urls.py
-from django.contrib import admin
-from django.urls import path, include
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('app_Libreria.urls')),  # enlazamos la app al root
-]
-
-Crea app_Libreria/urls.py con las rutas CRUD para Autor y la vista inicio:
-app_Libreria/urls.py
-from django.urls import path
-from . import views
-
-app_name = 'app_Libreria'
-
-urlpatterns = [
-    path('', views.inicio_libreria, name='inicio'),
-    # Autores
-    path('autores/agregar/', views.agregar_autor, name='agregar_autor'),
-    path('autores/', views.ver_autores, name='ver_autores'),
-    path('autores/actualizar/<int:autor_id>/', views.actualizar_autor, name='actualizar_autor'),
-    path('autores/realizar_actualizacion/<int:autor_id>/', views.realizar_actualizacion_autor, name='realizar_actualizacion_autor'),
-    path('autores/borrar/<int:autor_id>/', views.borrar_autor, name='borrar_autor'),
-]
-
-
-7 — Vistas (views.py) — CRUD autores (sin forms.py)
-app_Libreria/views.py
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Autor
+```python
+from django.db import models
+from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 
+class Autor(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre completo")
+    nacionalidad = models.CharField(max_length=50, verbose_name="Nacionalidad")
+    fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")
+    fecha_fallecimiento = models.DateField(null=True, blank=True, verbose_name="Fecha de fallecimiento")
+    biografia = models.TextField(verbose_name="Biografía", help_text="Breve biografía del autor")
+    email = models.EmailField(verbose_name="Email de contacto", blank=True)
+    activo = models.BooleanField(default=True, verbose_name="Autor activo")
+
+    class Meta:
+        verbose_name = "Autor"
+        verbose_name_plural = "Autores"
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
+
+class Libro(models.Model):
+    GENEROS = [
+        ('FIC', 'Ficción'),
+        ('ROM', 'Romance'),
+        ('TER', 'Terror'),
+        ('CIE', 'Ciencia Ficción'),
+        ('FAN', 'Fantasía'),
+        ('HIS', 'Histórico'),
+        ('BIO', 'Biografía'),
+        ('INF', 'Infantil'),
+    ]
+    titulo = models.CharField(max_length=200, verbose_name="Título del libro")
+    isbn = models.CharField(max_length=13, unique=True, verbose_name="ISBN")
+    genero = models.CharField(max_length=3, choices=GENEROS, verbose_name="Género")
+    fecha_publicacion = models.DateField(verbose_name="Fecha de publicación")
+    precio = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Precio")
+    stock = models.PositiveIntegerField(default=0, verbose_name="Cantidad en stock")
+    descripcion = models.TextField(verbose_name="Descripción", blank=True)
+    autores = models.ManyToManyField(Autor, related_name='libros', verbose_name="Autores")
+
+    class Meta:
+        verbose_name = "Libro"
+        verbose_name_plural = "Libros"
+        ordering = ['titulo']
+
+    def __str__(self):
+        return self.titulo
+
+    def disponible(self):
+        return self.stock > 0
+
+class Venta(models.Model):
+    ESTADOS = [
+        ('PEN', 'Pendiente'),
+        ('COM', 'Completada'),
+        ('CAN', 'Cancelada'),
+        ('DEV', 'Devuelta'),
+    ]
+    fecha_venta = models.DateTimeField(default=timezone.now, verbose_name="Fecha de venta")
+    cantidad = models.PositiveIntegerField(verbose_name="Cantidad vendida")
+    precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Precio unitario")
+    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Total de la venta")
+    estado = models.CharField(max_length=3, choices=ESTADOS, default='PEN', verbose_name="Estado de la venta")
+    cliente_nombre = models.CharField(max_length=100, verbose_name="Nombre del cliente")
+    cliente_email = models.EmailField(verbose_name="Email del cliente")
+    libro = models.ForeignKey(
+        Libro, on_delete=models.PROTECT, related_name='ventas', verbose_name="Libro vendido"
+    )
+
+    class Meta:
+        verbose_name = "Venta"
+        verbose_name_plural = "Ventas"
+        ordering = ['-fecha_venta']
+
+    def __str__(self):
+        return f"Venta #{self.id} - {self.libro.titulo}"
+
+    def save(self, *args, **kwargs):
+        self.total = self.cantidad * self.precio_unitario
+        super().save(*args, **kwargs)
+```
+
+> Recuerda: por ahora trabajaremos sólo con `Autor`. Los modelos `Libro` y `Venta` los dejamos definidos pero sin vistas ni plantillas todavía.
+
+---
+
+## 11 — Realizar migraciones (makemigrations y migrate)
+
+```bash
+# Crear migraciones
+python manage.py makemigrations
+
+# Aplicar migraciones
+python manage.py migrate
+```
+
+Si agregas la app en `settings.py` más abajo, vuelve a ejecutar `makemigrations` para la app.
+
+---
+
+## 12 — Vistas (views.py) — CRUD para AUTOR (sin usar forms.py)
+
+Abre `app_Libreria/views.py` y pega lo siguiente:
+
+```python
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Autor
+from django.urls import reverse
+
+# Página de inicio del sistema
 def inicio_libreria(request):
     contexto = {
-        'sistema_nombre': 'Sistema de Administración Libreria AJMG 1194',
-        'fecha_sistema': timezone.now(),
+        'titulo': 'Sistema de Administración Libreria AJMG 1194',
     }
     return render(request, 'inicio.html', contexto)
 
+# Agregar autor (muestra formulario y procesa POST)
 def agregar_autor(request):
     if request.method == 'POST':
-        nombre = request.POST.get('nombre', '')
-        nacionalidad = request.POST.get('nacionalidad', '')
-        fecha_nacimiento = request.POST.get('fecha_nacimiento') or None
+        nombre = request.POST.get('nombre')
+        nacionalidad = request.POST.get('nacionalidad')
+        fecha_nacimiento = request.POST.get('fecha_nacimiento')
         fecha_fallecimiento = request.POST.get('fecha_fallecimiento') or None
-        biografia = request.POST.get('biografia', '')
-        email = request.POST.get('email', '')
+        biografia = request.POST.get('biografia')
+        email = request.POST.get('email')
         activo = True if request.POST.get('activo') == 'on' else False
 
-        autor = Autor(
+        Autor.objects.create(
             nombre=nombre,
             nacionalidad=nacionalidad,
             fecha_nacimiento=fecha_nacimiento,
-            fecha_fallecimiento=fecha_fallecimiento if fecha_fallecimiento else None,
+            fecha_fallecimiento=fecha_fallecimiento,
             biografia=biografia,
             email=email,
-            activo=activo
+            activo=activo,
         )
-        autor.save()
-        return redirect('app_Libreria:ver_autores')
+        return redirect('ver_autores')
 
     return render(request, 'autor/agregar_autor.html')
 
-
+# Ver todos los autores
 def ver_autores(request):
-    autores = Autor.objects.all().order_by('nombre')
+    autores = Autor.objects.all()
     return render(request, 'autor/ver_autores.html', {'autores': autores})
 
-
+# Mostrar formulario de actualización de autor (GET)
 def actualizar_autor(request, autor_id):
     autor = get_object_or_404(Autor, id=autor_id)
     return render(request, 'autor/actualizar_autor.html', {'autor': autor})
 
-
+# Procesar la actualización (POST)
 def realizar_actualizacion_autor(request, autor_id):
     autor = get_object_or_404(Autor, id=autor_id)
     if request.method == 'POST':
-        autor.nombre = request.POST.get('nombre', autor.nombre)
-        autor.nacionalidad = request.POST.get('nacionalidad', autor.nacionalidad)
-        fecha_nac = request.POST.get('fecha_nacimiento') or None
-        autor.fecha_nacimiento = fecha_nac if fecha_nac else autor.fecha_nacimiento
-        fecha_fal = request.POST.get('fecha_fallecimiento') or None
-        autor.fecha_fallecimiento = fecha_fal if fecha_fal else None
-        autor.biografia = request.POST.get('biografia', autor.biografia)
-        autor.email = request.POST.get('email', autor.email)
+        autor.nombre = request.POST.get('nombre')
+        autor.nacionalidad = request.POST.get('nacionalidad')
+        autor.fecha_nacimiento = request.POST.get('fecha_nacimiento')
+        fecha_fallecimiento = request.POST.get('fecha_fallecimiento') or None
+        autor.fecha_fallecimiento = fecha_fallecimiento
+        autor.biografia = request.POST.get('biografia')
+        autor.email = request.POST.get('email')
         autor.activo = True if request.POST.get('activo') == 'on' else False
         autor.save()
-        return redirect('app_Libreria:ver_autores')
+        return redirect('ver_autores')
+    return redirect('actualizar_autor', autor_id=autor_id)
 
-    # si no es POST, redirigir a la vista de edición
-    return redirect('app_Libreria:actualizar_autor', autor_id=autor_id)
-
-
+# Borrar autor (confirmación GET + borrado POST)
 def borrar_autor(request, autor_id):
     autor = get_object_or_404(Autor, id=autor_id)
     if request.method == 'POST':
         autor.delete()
-        return redirect('app_Libreria:ver_autores')
+        return redirect('ver_autores')
     return render(request, 'autor/borrar_autor.html', {'autor': autor})
+```
 
-Notas:
+---
 
+## 13 — Crear carpeta `templates` y archivos HTML
 
-No se usa forms.py; recogemos los campos desde request.POST.
+Dentro de `app_Libreria`, crea la carpeta `templates` y los archivos pedidos. A continuación tienes plantillas base y las específicas para Autor.
 
+> **Nota:** usa Bootstrap CDN para CSS/JS en `base.html`. Los HTML están pensados para diseño simple y colores suaves.
 
-No validamos entradas (tal como pediste).
+### `templates/base.html`
 
-
-realizar_actualizacion_autor separada para procesar POST (tal como solicitaste).
-
-
-
-8 — Carpeta de plantillas: estructura
-Crea esta estructura dentro de app_Libreria:
-app_Libreria/
-  templates/
-    base.html
-    header.html
-    navbar.html
-    footer.html
-    inicio.html
-    autor/
-      agregar_autor.html
-      ver_autores.html
-      actualizar_autor.html
-      borrar_autor.html
-
-
-9 — Código de las plantillas
-app_Libreria/templates/base.html
+```html
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Librería AJMG 1194{% endblock %}</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Libreria AJMG 1194{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body { background-color: #f7f9fb; color: #1f2937; }
+      .soft-card { background-color: #ffffff; border-radius: 12px; box-shadow: 0 2px 8px rgba(31,41,55,0.05); }
+      footer { position: fixed; bottom: 0; width: 100%; }
+    </style>
+  </head>
+  <body>
+    {% include 'navbar.html' %}
 
-  <!-- Bootstrap CSS (CDN) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <main class="container my-5">
+      {% block content %}{% endblock %}
+    </main>
 
-  <!-- Bootstrap Icons (CDN) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    {% include 'footer.html' %}
 
-  <style>
-    body { padding-bottom: 80px; background-color: #f8fafc; } /* color suave */
-    footer.footer-fixed {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background: #ffffff;
-      border-top: 1px solid #e9ecef;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .soft-card { border-radius: 12px; box-shadow: 0 6px 18px rgba(50,50,93,0.06); background: white; }
-    .content { padding-top: 20px; padding-bottom: 20px; }
-  </style>
-
-  {% block extra_head %}{% endblock %}
-</head>
-<body>
-  {% include 'navbar.html' %}
-  <div class="container content">
-    {% block content %}{% endblock %}
-  </div>
-
-  {% include 'footer.html' %}
-
-  <!-- Bootstrap JS (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  {% block extra_js %}{% endblock %}
-</body>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
+```
 
-app_Libreria/templates/navbar.html
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+### `templates/navbar.html`
+
+```html
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'app_Libreria:inicio' %}">
-      <i class="bi bi-book-half fs-3 me-2"></i>
-      <span>Sistema de Administración Libreria AJMG 1194</span>
-    </a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
-      aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+    <a class="navbar-brand" href="#">📚 Sistema de Administración Libreria AJMG 1194</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="{% url 'app_Libreria:inicio' %}">Inicio</a></li>
-
-        <!-- Autores submenu -->
+        <li class="nav-item"><a class="nav-link" href="{% url 'inicio_libreria' %}">Inicio</a></li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="autoresMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-people-fill"></i> Autores
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="autoresMenu">
-            <li><a class="dropdown-item" href="{% url 'app_Libreria:agregar_autor' %}">Agregar Autor</a></li>
-            <li><a class="dropdown-item" href="{% url 'app_Libreria:ver_autores' %}">Ver Autores</a></li>
-            <!-- Actualizar y borrar se manejan en la tabla de ver_autores -->
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">📖 Autores</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'agregar_autor' %}">Agregar Autor</a></li>
+            <li><a class="dropdown-item" href="{% url 'ver_autores' %}">Ver Autores</a></li>
           </ul>
         </li>
-
-        <!-- Libros submenu -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="librosMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-journal-bookmark-fill"></i> Libros
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="librosMenu">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">📚 Libros</a>
+          <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#">Agregar Libro</a></li>
             <li><a class="dropdown-item" href="#">Ver Libros</a></li>
           </ul>
         </li>
-
-        <!-- Ventas submenu -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="ventasMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-receipt-cutoff"></i> Ventas
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="ventasMenu">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">💳 Ventas</a>
+          <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#">Agregar Venta</a></li>
             <li><a class="dropdown-item" href="#">Ver Ventas</a></li>
           </ul>
@@ -325,268 +432,468 @@ app_Libreria/templates/navbar.html
     </div>
   </div>
 </nav>
+```
 
-app_Libreria/templates/footer.html
-<footer class="footer-fixed">
+### `templates/footer.html`
+
+```html
+<footer class="bg-white border-top py-3">
   <div class="container text-center small">
-    © {{ fecha|default:None }} Derechos reservados - Creado por Alfredo Martinez
+    © Derechos reservados — {{ now|date:"Y" }} — Creado por Alfredo Martinez
   </div>
 </footer>
+```
 
-{% comment %}
-Usamos JS sencillo para inyectar la fecha del sistema si está disponible en contexto.
-{% endcomment %}
-<script>
-  (function(){
-    const footer = document.querySelector('.footer-fixed .container');
-    if (footer) {
-      const dateStr = new Date().toLocaleDateString();
-      footer.innerHTML = `© ${dateStr} Derechos reservados - Creado por Alfredo Martinez`;
-    }
-  })();
-</script>
+*(usar la etiqueta `now` requiere activar el context processor o pasar `now` desde la vista; alternativa simple: usar `{{ "now"|date:"Y" }}` no funciona — recomendamos pasar la fecha desde la vista `inicio_libreria`).*
 
+### `templates/inicio.html`
 
-Nota: pediste que el footer muestre la fecha y "Creado por Alfredo Martinez" y quede fijo abajo — el CSS y el script cumplen eso.
-
-app_Libreria/templates/inicio.html
-{% extends "base.html" %}
-{% block title %}Inicio - Libreria AJMG 1194{% endblock %}
-
-{% block content %}
-<div class="row">
-  <div class="col-md-7">
-    <div class="p-4 soft-card">
-      <h2>Bienvenido al Sistema de Administración Libreria AJMG 1194</h2>
-      <p>Este sistema permite administrar autores, libros y ventas. Por ahora trabajaremos con el módulo de <strong>Autores</strong>.</p>
-      <ul>
-        <li>Agregar, ver, actualizar y borrar autores.</li>
-        <li>Interfaz sencilla y colores suaves.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="col-md-5">
-    <div class="soft-card p-0 overflow-hidden">
-      <!-- imagen tomada desde la red -->
-      <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=1080&auto=format&fit=crop&ixlib=rb-4.0.3&s=3b8a1e6c9d0b9c5a"
-           alt="Librería" style="width:100%; height:100%; object-fit:cover;">
-    </div>
-  </div>
-</div>
-{% endblock %}
-
-
-10 — Templates para autor (CRUD)
-app_Libreria/templates/autor/agregar_autor.html
+```html
 {% extends 'base.html' %}
-{% block title %}Agregar Autor{% endblock %}
+{% block title %}Inicio - Libreria AJMG{% endblock %}
 {% block content %}
-<div class="soft-card p-4">
-  <h3>Agregar Autor</h3>
-  <form method="post" action="">
-    {% csrf_token %}
-    <div class="mb-3">
-      <label class="form-label">Nombre completo</label>
-      <input class="form-control" name="nombre" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Nacionalidad</label>
-      <input class="form-control" name="nacionalidad">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Fecha de nacimiento</label>
-      <input type="date" class="form-control" name="fecha_nacimiento">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Fecha de fallecimiento</label>
-      <input type="date" class="form-control" name="fecha_fallecimiento">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Biografía</label>
-      <textarea class="form-control" rows="4" name="biografia"></textarea>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-control" name="email">
-    </div>
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="checkbox" name="activo" checked>
-      <label class="form-check-label">Autor activo</label>
-    </div>
-    <button class="btn btn-primary">Guardar autor</button>
-    <a href="{% url 'app_Libreria:ver_autores' %}" class="btn btn-secondary ms-2">Volver</a>
-  </form>
-</div>
+  <div class="soft-card p-4">
+    <h1>{{ titulo }}</h1>
+    <p>Bienvenido al sistema de administración de la librería AJMG 1194.</p>
+    <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794" class="img-fluid rounded" alt="Librería">
+  </div>
 {% endblock %}
+```
 
-app_Libreria/templates/autor/ver_autores.html
+> **Autor templates**: crea carpeta `templates/autor/` y añade los siguientes archivos.
+
+#### `templates/autor/agregar_autor.html`
+
+```html
 {% extends 'base.html' %}
-{% block title %}Ver Autores{% endblock %}
 {% block content %}
-<div class="soft-card p-4">
-  <h3>Autores</h3>
-  <a href="{% url 'app_Libreria:agregar_autor' %}" class="btn btn-success mb-3">Agregar Autor</a>
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
+<h2>Agregar Autor</h2>
+<form method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input class="form-control" name="nombre" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Nacionalidad</label>
+    <input class="form-control" name="nacionalidad">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Fecha de nacimiento</label>
+    <input class="form-control" type="date" name="fecha_nacimiento">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Fecha de fallecimiento</label>
+    <input class="form-control" type="date" name="fecha_fallecimiento">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Biografía</label>
+    <textarea class="form-control" name="biografia"></textarea>
+  </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" name="activo" id="activo">
+    <label class="form-check-label" for="activo">Autor activo</label>
+  </div>
+  <button class="btn btn-primary">Guardar</button>
+</form>
+{% endblock %}
+```
+
+#### `templates/autor/ver_autores.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Autores</h2>
+<table class="table">
+  <thead><tr><th>Nombre</th><th>Nacionalidad</th><th>Fecha Nac.</th><th>Activo</th><th>Acciones</th></tr></thead>
+  <tbody>
+    {% for autor in autores %}
+      <tr>
+        <td>{{ autor.nombre }}</td>
+        <td>{{ autor.nacionalidad }}</td>
+        <td>{{ autor.fecha_nacimiento }}</td>
+        <td>{{ autor.activo }}</td>
+        <td>
+          <a class="btn btn-sm btn-info" href="{% url 'actualizar_autor' autor.id %}">Editar</a>
+          <a class="btn btn-sm btn-danger" href="{% url 'borrar_autor' autor.id %}">Borrar</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">No hay autores registrados.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+```
+
+#### `templates/autor/actualizar_autor.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Actualizar Autor</h2>
+<form method="post" action="{% url 'realizar_actualizacion_autor' autor.id %}">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input class="form-control" name="nombre" value="{{ autor.nombre }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Nacionalidad</label>
+    <input class="form-control" name="nacionalidad" value="{{ autor.nacionalidad }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Fecha de nacimiento</label>
+    <input class="form-control" type="date" name="fecha_nacimiento" value="{{ autor.fecha_nacimiento }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Fecha de fallecimiento</label>
+    <input class="form-control" type="date" name="fecha_fallecimiento" value="{{ autor.fecha_fallecimiento }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Biografía</label>
+    <textarea class="form-control" name="biografia">{{ autor.biografia }}</textarea>
+  </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" name="activo" id="activo" {% if autor.activo %}checked{% endif %}>
+    <label class="form-check-label" for="activo">Autor activo</label>
+  </div>
+  <button class="btn btn-success">Actualizar</button>
+</form>
+{% endblock %}
+```
+
+#### `templates/autor/borrar_autor.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Confirmar borrado</h2>
+<p>¿Eliminar al autor <strong>{{ autor.nombre }}</strong>?</p>
+<form method="post">
+  {% csrf_token %}
+  <button class="btn btn-danger">Sí, borrar</button>
+  <a class="btn btn-secondary" href="{% url 'ver_autores' %}">Cancelar</a>
+</form>
+{% endblock %}
+```
+
+---
+
+## 14 — urls.py en `app_Libreria` (enlazar vistas)
+
+Crea `app_Libreria/urls.py` con:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.inicio_libreria, name='inicio_libreria'),
+    path('autores/agregar/', views.agregar_autor, name='agregar_autor'),
+    path('autores/', views.ver_autores, name='ver_autores'),
+    path('autores/editar/<int:autor_id>/', views.actualizar_autor, name='actualizar_autor'),
+    path('autores/editar/guardar/<int:autor_id>/', views.realizar_actualizacion_autor, name='realizar_actualizacion_autor'),
+    path('autores/borrar/<int:autor_id>/', views.borrar_autor, name='borrar_autor'),
+]
+```
+
+---
+
+## 15 — Agregar `app_Libreria` en `settings.py`
+
+En `backend_Libreria/settings.py`, dentro de `INSTALLED_APPS` agrega:
+
+```python
+INSTALLED_APPS = [
+    # ...
+    'app_Libreria',
+]
+```
+
+Asegúrate de tener configurado `TEMPLATES` con `APP_DIRS: True` (por defecto en Django) para que reconozca `templates/` dentro de la app.
+
+---
+
+## 16 — Configurar `urls.py` del proyecto (backend_Libreria/urls.py)
+
+Edita `backend_Libreria/urls.py`:
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('app_Libreria.urls')),
+]
+```
+
+---
+
+## 17 — Registrar modelos en `admin.py` y migraciones finales
+
+En `app_Libreria/admin.py`:
+
+```python
+from django.contrib import admin
+from .models import Autor, Libro, Venta
+
+@admin.register(Autor)
+class AutorAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'nacionalidad', 'fecha_nacimiento', 'activo')
+    search_fields = ('nombre', 'nacionalidad')
+
+@admin.register(Libro)
+class LibroAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'isbn', 'genero', 'precio', 'stock')
+    search_fields = ('titulo', 'isbn')
+
+@admin.register(Venta)
+class VentaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'libro', 'cantidad', 'total', 'fecha_venta', 'estado')
+    list_filter = ('estado',)
+```
+
+Luego ejecuta:
+
+```bash
+python manage.py makemigrations app_Libreria
+python manage.py migrate
+```
+
+---
+
+## 18 — Notas sobre diseño y comportamiento solicitado
+
+* **Colores suaves:** ya se incluyen estilos en `base.html` para fondo claro y tarjetas blancas.
+* **No validar entrada de datos:** las vistas manejan `POST` directamente sin validaciones (tal como pediste).
+* **No usar `forms.py`:** todo el manejo se hace con `request.POST`.
+* **Por ahora trabajar sólo con "Autor":** las vistas y plantillas provistas cubren CRUD de Autores. Libro y Venta están definidos en models.py pero se dejan pendientes.
+
+---
+
+## 19 — Comandos resumen (para copiar/pegar rápido)
+
+```bash
+# Crear proyecto y app
+mkdir UIII_Libreria_1194
+cd UIII_Libreria_1194
+python -m venv .venv
+# activar .venv según tu sistema
+pip install django
+mkdir backend_Libreria
+cd backend_Libreria
+django-admin startproject backend_Libreria .
+python manage.py startapp app_Libreria
+# editar archivos: settings.py, models.py, views.py, templates, urls.py
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver 127.0.0.1:1194
+```
+
+---
+
+## 20 — Últimos consejos y verificación
+
+1. Si al acceder a `http://127.0.0.1:1194/` ves la página de bienvenida de Django, significa que `manage.py runserver` no está apuntando a tu `app_Libreria` o que `urls.py` no quedó configurado. Verifica `backend_Libreria/urls.py` e `INSTALLED_APPS`.
+
+2. Si ves errores de plantillas, revisa que las rutas y nombres de archivos en `templates/` coincidan exactamente.
+
+3. Para mostrar la fecha actual en el footer, puedes modificar `inicio_libreria` para enviar `{'titulo': ..., 'now': timezone.now()}` y en `footer.html` usar `{{ now|date:"Y" }}`.
+
+---
+
+## 21 — Qué queda pendiente (por ahora)
+
+* Implementar CRUD de `Libro` y `Venta`.
+* Añadir autorización/usuarios si se desea más adelante.
+* Validación de datos si en un futuro lo solicitas.
+
+**Paso 23: Crear modelo para Clientes y Ventas**
+
+1. Abre el archivo `models.py` dentro de la carpeta `LibreriaAJMG`.
+
+2. Agrega los siguientes modelos debajo del modelo `Libro`:
+
+   ```python
+   class Cliente(models.Model):
+       nombre = models.CharField(max_length=100)
+       correo = models.EmailField()
+       telefono = models.CharField(max_length=15)
+
+       def __str__(self):
+           return self.nombre
+
+   class Venta(models.Model):
+       cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+       libro = models.ForeignKey(Libro, on_delete=models.CASCADE)
+       fecha_venta = models.DateField(auto_now_add=True)
+       cantidad = models.PositiveIntegerField()
+
+       def total(self):
+           return self.cantidad * self.libro.precio
+
+       def __str__(self):
+           return f"Venta de {self.libro.titulo} a {self.cliente.nombre}"
+   ```
+
+3. Guarda el archivo y ejecuta en la terminal:
+
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+
+---
+
+**Paso 24: Registrar los modelos en el administrador**
+
+1. Abre `admin.py` y agrega:
+
+   ```python
+   from .models import Libro, Cliente, Venta
+
+   admin.site.register(Libro)
+   admin.site.register(Cliente)
+   admin.site.register(Venta)
+   ```
+
+2. Guarda el archivo y entra al panel de administración (`/admin`) para confirmar que se muestran **Libros**, **Clientes** y **Ventas**.
+
+---
+
+**Paso 25: Crear vistas para Clientes y Ventas**
+Abre `views.py` y agrega:
+
+```python
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Libro, Cliente, Venta
+
+# CLIENTES
+
+def lista_clientes(request):
+    clientes = Cliente.objects.all()
+    return render(request, 'lista_clientes.html', {'clientes': clientes})
+
+# VENTAS
+
+def lista_ventas(request):
+    ventas = Venta.objects.all()
+    return render(request, 'lista_ventas.html', {'ventas': ventas})
+```
+
+---
+
+**Paso 26: Configurar URLs para Clientes y Ventas**
+Abre `urls.py` dentro de `LibreriaAJMG` y agrega las siguientes rutas:
+
+```python
+urlpatterns = [
+    path('', views.inicio, name='inicio'),
+    path('libros/', views.lista_libros, name='lista_libros'),
+    path('clientes/', views.lista_clientes, name='lista_clientes'),
+    path('ventas/', views.lista_ventas, name='lista_ventas'),
+]
+```
+
+---
+
+**Paso 27: Crear las plantillas HTML para Clientes y Ventas**
+📄 **lista_clientes.html**
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Clientes - Librería AJMG</title>
+</head>
+<body>
+    <h1>Clientes Registrados</h1>
+    <table border="1">
         <tr>
-          <th>Nombre</th>
-          <th>Nacionalidad</th>
-          <th>F. Nacimiento</th>
-          <th>Activo</th>
-          <th>Acciones</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
         </tr>
-      </thead>
-      <tbody>
-        {% for autor in autores %}
+        {% for cliente in clientes %}
         <tr>
-          <td>{{ autor.nombre }}</td>
-          <td>{{ autor.nacionalidad }}</td>
-          <td>{{ autor.fecha_nacimiento }}</td>
-          <td>{% if autor.activo %}Sí{% else %}No{% endif %}</td>
-          <td>
-            <a href="{% url 'app_Libreria:actualizar_autor' autor.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
-            <a href="{% url 'app_Libreria:borrar_autor' autor.id %}" class="btn btn-sm btn-outline-danger">Borrar</a>
-          </td>
+            <td>{{ cliente.nombre }}</td>
+            <td>{{ cliente.correo }}</td>
+            <td>{{ cliente.telefono }}</td>
         </tr>
-        {% empty %}
-        <tr><td colspan="5">No hay autores registrados.</td></tr>
         {% endfor %}
-      </tbody>
     </table>
-  </div>
-</div>
-{% endblock %}
+    <br>
+    <a href="/">Volver al inicio</a>
+</body>
+</html>
+```
 
-app_Libreria/templates/autor/actualizar_autor.html
-{% extends 'base.html' %}
-{% block title %}Actualizar Autor{% endblock %}
-{% block content %}
-<div class="soft-card p-4">
-  <h3>Actualizar Autor</h3>
-  <form method="post" action="{% url 'app_Libreria:realizar_actualizacion_autor' autor.id %}">
-    {% csrf_token %}
-    <div class="mb-3">
-      <label class="form-label">Nombre completo</label>
-      <input class="form-control" name="nombre" value="{{ autor.nombre }}">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Nacionalidad</label>
-      <input class="form-control" name="nacionalidad" value="{{ autor.nacionalidad }}">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Fecha de nacimiento</label>
-      <input type="date" class="form-control" name="fecha_nacimiento" value="{{ autor.fecha_nacimiento }}">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Fecha de fallecimiento</label>
-      <input type="date" class="form-control" name="fecha_fallecimiento" value="{{ autor.fecha_fallecimiento }}">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Biografía</label>
-      <textarea class="form-control" rows="4" name="biografia">{{ autor.biografia }}</textarea>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-control" name="email" value="{{ autor.email }}">
-    </div>
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="checkbox" name="activo" {% if autor.activo %}checked{% endif %}>
-      <label class="form-check-label">Autor activo</label>
-    </div>
-    <button class="btn btn-primary">Guardar cambios</button>
-    <a href="{% url 'app_Libreria:ver_autores' %}" class="btn btn-secondary ms-2">Cancelar</a>
-  </form>
-</div>
-{% endblock %}
+📄 **lista_ventas.html**
 
-app_Libreria/templates/autor/borrar_autor.html
-{% extends 'base.html' %}
-{% block title %}Borrar Autor{% endblock %}
-{% block content %}
-<div class="soft-card p-4">
-  <h3>Borrar Autor</h3>
-  <p>¿Estás seguro que deseas eliminar al autor <strong>{{ autor.nombre }}</strong>?</p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Sí, borrar</button>
-    <a href="{% url 'app_Libreria:ver_autores' %}" class="btn btn-secondary ms-2">Cancelar</a>
-  </form>
-</div>
-{% endblock %}
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Ventas - Librería AJMG</title>
+</head>
+<body>
+    <h1>Ventas Realizadas</h1>
+    <table border="1">
+        <tr>
+            <th>Cliente</th>
+            <th>Libro</th>
+            <th>Cantidad</th>
+            <th>Fecha de Venta</th>
+            <th>Total</th>
+        </tr>
+        {% for venta in ventas %}
+        <tr>
+            <td>{{ venta.cliente.nombre }}</td>
+            <td>{{ venta.libro.titulo }}</td>
+            <td>{{ venta.cantidad }}</td>
+            <td>{{ venta.fecha_venta }}</td>
+            <td>{{ venta.total }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="/">Volver al inicio</a>
+</body>
+</html>
+```
 
+---
 
-11 — Crear la estructura completa al inicio (recordatorio rápido)
-En la raíz de UIII_Libreria_1194 deberías tener:
-backend_Libreria/        # carpeta creada por startproject (archivos .py: settings.py, urls.py, wsgi.py...)
-manage.py
-app_Libreria/
-  migrations/
-  templates/
-    autor/
-      agregar_autor.html
-      ver_autores.html
-      actualizar_autor.html
-      borrar_autor.html
-    base.html
-    navbar.html
-    footer.html
-    inicio.html
-  models.py
-  views.py
-  urls.py
-  admin.py
-.venv/
+**Paso 28: Actualizar el menú principal (inicio.html)**
+Modifica `inicio.html` agregando enlaces a las nuevas secciones:
 
+```html
+<ul>
+    <li><a href="/libros/">Ver lista de libros</a></li>
+    <li><a href="/clientes/">Ver lista de clientes</a></li>
+    <li><a href="/ventas/">Ver lista de ventas</a></li>
+</ul>
+```
 
-12 — Últimos pasos: crear superusuario y ejecutar servidor en puerto 1194
-# crear superusuario para acceder a /admin
-python manage.py createsuperuser
-# seguir prompts: email, username, contraseña
+---
 
-# ejecutar servidor en el puerto 1194
-python manage.py runserver 1194
+**Paso 29: Probar todo el sistema**
 
-Luego copia y pega en el navegador:
-http://127.0.0.1:1194/
+1. Ejecuta el servidor:
 
-o
-http://localhost:1194/
+   ```bash
+   python manage.py runserver
+   ```
+2. Abre en tu navegador:
 
-Admin panel:
-http://127.0.0.1:1194/admin/
+   ```
+   http://127.0.0.1:8000/
+   ```
+3. Verifica que puedes acceder a las secciones de **Libros**, **Clientes** y **Ventas** correctamente.
 
-
-13 — Notas, recomendaciones y puntos importantes
-
-
-No se validan entradas (petición tuya). Si en el futuro quieres validación, podemos agregar validadores o ModelForm.
-
-
-El proyecto crea las carpetas y archivos solicitados; en las plantillas uso Bootstrap (CDN) con diseño sencillo y colores suaves.
-
-
-Dejé el modelo Libro y Venta en models.py pero por ahora solo trabajamos la interfaz CRUD de Autor (tal como pediste).
-
-
-Registrar los modelos en admin.py y ejecutar makemigrations/migrate después de editar modelos.
-
-
-Si quieres que los iconos sean distintos o usar Font Awesome en lugar de Bootstrap Icons, lo cambio.
-
-
-Si quieres que footer.html muestre fecha fija del servidor (en vez de JS), puedo pasar fecha desde inicio_libreria en el contexto. Actualmente el footer usa un script simple para insertar la fecha local del cliente.
-
-
-
-Si quieres, ahora mismo te:
-
-
-Puedo pegar todo el contenido de cada archivo listo para copiar/pegar (si prefieres que lo haga archivo por archivo).
-
-
-O generar un readme con todos los comandos en orden y los archivos completos para que lo descargues.
-
-
-Dime cuál prefieres y lo pongo enseguida (no esperaré ni ejecutaré nada en tu máquina; te doy los archivos listos).
+✅ **Segunda parte completada:** ahora el sistema muestra toda la información de la librería (Libros, Clientes y Ventas) desde las plantillas HTML.
